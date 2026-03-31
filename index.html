@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bingo!</title>
+    <meta
+      name="description"
+      content="Minimalistinis lockout bingo vakaro pasimatymui su 25 užduotimis ir prizais"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+    <main class="app-shell">
+      <section class="panel board-panel">
+        <div class="board-top">
+          <button type="button" id="end-evening-btn" class="secondary-btn icon-btn">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 3v18"></path>
+                <path d="M6 4h12l-2.5 4L18 12H6"></path>
+              </svg>
+            </span>
+            <span>Bingo!</span>
+          </button>
+          <button type="button" id="open-setup-btn" class="secondary-btn icon-btn">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3.5"></circle>
+                <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1 1 0 0 1 0 1.4l-1 1a1 1 0 0 1-1.4 0l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1 1 0 0 1-1 1h-1.4a1 1 0 0 1-1-1v-.1a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a1 1 0 0 1-1.4 0l-1-1a1 1 0 0 1 0-1.4l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a1 1 0 0 1-1-1v-1.4a1 1 0 0 1 1-1h.1a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a1 1 0 0 1 0-1.4l1-1a1 1 0 0 1 1.4 0l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a1 1 0 0 1 1-1h1.4a1 1 0 0 1 1 1v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a1 1 0 0 1 1.4 0l1 1a1 1 0 0 1 0 1.4l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a1 1 0 0 1 1 1v1.4a1 1 0 0 1-1 1h-.1a1 1 0 0 0-.9.6z"></path>
+              </svg>
+            </span>
+            <span>Nustatymai</span>
+          </button>
+          <button type="button" id="open-prizes-btn" class="primary-btn icon-btn">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 4h10v3a5 5 0 0 1-10 0V4z"></path>
+                <path d="M17 5h2a2 2 0 0 1 0 4h-2"></path>
+                <path d="M7 5H5a2 2 0 0 0 0 4h2"></path>
+                <path d="M12 12v5"></path>
+                <path d="M8 21h8"></path>
+                <path d="M9.5 17h5"></path>
+              </svg>
+            </span>
+            <span>Prizai</span>
+          </button>
+        </div>
+        <div id="tasks-grid" class="tasks-grid" aria-live="polite"></div>
+        <div class="board-footer-progress">
+          <div class="progress-track" aria-hidden="true">
+            <div id="global-progress-bar" class="progress-fill"></div>
+          </div>
+          <p id="claimed-counter"></p>
+        </div>
+      </section>
+
+      <p id="status-line" class="status-line" aria-live="polite"></p>
+
+      <nav class="panel bottom-actions" aria-label="Pagrindiniai veiksmai">
+        <div class="turn-switch" role="group" aria-label="Aktyvus žaidėjas">
+          <button type="button" class="switch-btn" data-set-active="p1"></button>
+          <button type="button" class="switch-btn" data-set-active="p2"></button>
+        </div>
+        <button type="button" id="undo-btn" class="secondary-btn icon-btn icon-only-btn board-undo-btn" aria-label="Atgal">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 14 4 9l5-5"></path>
+              <path d="M4 9h10a6 6 0 1 1 0 12h-2"></path>
+            </svg>
+          </span>
+        </button>
+      </nav>
+    </main>
+
+    <section
+      id="setup-screen"
+      class="overlay-screen is-hidden"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="setup-title"
+    >
+      <div class="popup-card">
+        <div class="popup-head">
+          <h2 id="setup-title">Nustatymai</h2>
+          <button type="button" id="close-setup-btn" class="secondary-btn icon-btn icon-only-btn" aria-label="Uždaryti">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 6l12 12"></path>
+                <path d="m18 6-12 12"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+        <label for="setup-name-p1">Žaidėjas 1</label>
+        <input id="setup-name-p1" maxlength="24" autocomplete="off" />
+        <label for="setup-name-p2">Žaidėjas 2</label>
+        <input id="setup-name-p2" maxlength="24" autocomplete="off" />
+        <div class="popup-actions settings-actions-inline">
+          <button type="button" id="save-setup-btn" class="primary-btn icon-btn">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 3h11l3 3v15H5z"></path>
+                <path d="M8 3v6h8V3"></path>
+                <path d="M8 15h8"></path>
+              </svg>
+            </span>
+            <span>Išsaugoti</span>
+          </button>
+          <button type="button" id="soft-reset-btn" class="secondary-btn icon-btn">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                <path d="M3 4v5h5"></path>
+              </svg>
+            </span>
+            <span>Naujas raundas</span>
+          </button>
+          <button type="button" id="hard-reset-btn" class="danger-btn icon-btn">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                <path d="M3 4v5h5"></path>
+                <path d="M10 10l4 4"></path>
+                <path d="M14 10l-4 4"></path>
+              </svg>
+            </span>
+            <span>Pilnas reset</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="prizes-screen"
+      class="overlay-screen is-hidden"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="prizes-title"
+    >
+      <div class="popup-card prizes-popup-card">
+        <div class="popup-head">
+          <h2 id="prizes-title">Prizai ir progresas</h2>
+          <button type="button" id="close-prizes-btn" class="secondary-btn icon-btn icon-only-btn" aria-label="Uždaryti">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 6l12 12"></path>
+                <path d="m18 6-12 12"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <div id="player-progress-list" class="player-progress-list"></div>
+        <div id="prizes-columns" class="prizes-columns"></div>
+      </div>
+    </section>
+
+    <section
+      id="victory-screen"
+      class="overlay-screen is-hidden"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="victory-title"
+    >
+      <div class="popup-card victory-card">
+        <div class="popup-head">
+          <h2 id="victory-title">Bingo!</h2>
+          <button type="button" id="close-victory-btn" class="secondary-btn icon-btn icon-only-btn" aria-label="Uždaryti">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 6l12 12"></path>
+                <path d="m18 6-12 12"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+        <div class="victory-illustration" aria-hidden="true">
+          <svg viewBox="0 0 220 220" fill="none">
+            <defs>
+              <linearGradient id="cup-gradient" x1="74" y1="52" x2="146" y2="160" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#fde047"></stop>
+                <stop offset="55%" stop-color="#facc15"></stop>
+                <stop offset="100%" stop-color="#eab308"></stop>
+              </linearGradient>
+              <linearGradient id="halo-gradient" x1="110" y1="12" x2="110" y2="208" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#fef9c3"></stop>
+                <stop offset="100%" stop-color="#d9f99d"></stop>
+              </linearGradient>
+            </defs>
+
+            <circle class="halo" cx="110" cy="110" r="96"></circle>
+            <circle class="halo-inner" cx="110" cy="110" r="78"></circle>
+
+            <g class="rays">
+              <path class="ray" d="M110 16v22"></path>
+              <path class="ray" d="M148 26l-9 20"></path>
+              <path class="ray" d="M178 54l-19 12"></path>
+              <path class="ray" d="M194 95h-22"></path>
+              <path class="ray" d="M178 136l-19-12"></path>
+              <path class="ray" d="M148 164l-9-20"></path>
+              <path class="ray" d="M110 182v-22"></path>
+              <path class="ray" d="M72 164l9-20"></path>
+              <path class="ray" d="M42 136l19-12"></path>
+              <path class="ray" d="M26 95h22"></path>
+              <path class="ray" d="M42 54l19 12"></path>
+              <path class="ray" d="M72 26l9 20"></path>
+            </g>
+
+            <path class="ribbon left" d="M56 100c-8 12-8 30 1 42l22-12c-6-7-6-16-2-24l-21-6z"></path>
+            <path class="ribbon right" d="M164 100c8 12 8 30-1 42l-22-12c6-7 6-16 2-24l21-6z"></path>
+
+            <g class="cup-group">
+              <path class="cup" d="M74 56h72v20c0 22-16 40-36 40S74 98 74 76V56z"></path>
+              <path class="cup-line" d="M146 64h17a11 11 0 0 1 0 22h-17"></path>
+              <path class="cup-line" d="M74 64H57a11 11 0 0 0 0 22h17"></path>
+              <path class="cup" d="M92 120h36v12H92z"></path>
+              <path class="cup" d="M84 136h52v12H84z"></path>
+              <path class="cup-base" d="M74 154h72v16H74z"></path>
+            </g>
+
+            <circle class="spark s1" cx="34" cy="54" r="5"></circle>
+            <circle class="spark s2" cx="184" cy="44" r="4"></circle>
+            <circle class="spark s3" cx="190" cy="154" r="5"></circle>
+            <circle class="spark s4" cx="28" cy="162" r="4"></circle>
+            <circle class="spark s5" cx="108" cy="22" r="4"></circle>
+          </svg>
+        </div>
+        <p id="victory-message" class="victory-message"></p>
+        <div id="victory-actions" class="tie-actions"></div>
+      </div>
+    </section>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
