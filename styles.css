@@ -972,6 +972,21 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .prizes-popup-card {
+    max-height: calc(100dvh - 1.2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prizes-popup-card .popup-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    padding-bottom: 0.35rem;
+  }
+
   .settings-actions-inline {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
